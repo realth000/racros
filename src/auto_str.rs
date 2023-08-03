@@ -191,25 +191,17 @@ fn generate_try_from(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStr
         if !has_str_attr {
             // Do not have a #[str(..)] on this field.
             // Convert from/to string with rule.
-
-            // Check this:
-            //
-            // #[derive(AutoStr)]
-            // enum MyEnum {
-            //     E(MyEnum2),
-            // }
-            //
-            // Field E has unnamed field `MyEnum2` but does not have the `#[str(...)]` attribute.
             if let Fields::Unnamed(FieldsUnnamed { unnamed, .. }) = &variant.fields {
                 let f = unnamed.first().unwrap();
                 let wrapped_type = &f.ty;
-                // return Err(compiling_error!(v.span(), "this member has embedded unnamed field, but does not have a \"#[str(...)]\" attribute, which is not allowed"));
-                // [(choice1, result1), (choice2, result2)]
-                //
                 let wrapped_type_str = f.ty.to_token_stream().to_string();
                 try_from_guess_vec.push(quote! {
                     if let Ok(v) = #wrapped_type::try_from(value) {
-                        fallback_vec.push((#wrapped_type_str, #target_ident::#field_ident(v)));
+                        if fallback_result.is_some() {
+                            return Err(Self::Error::from(format!("#[str(...)] attribute not set and fallback guess is ambiguous: both {} and {} can accept this convert", fallback_field.unwrap(), #wrapped_type_str)));
+                        }
+                        fallback_field = Some(#wrapped_type_str);
+                        fallback_result = Some(#target_ident::#field_ident(v));
                     }
                 });
             } else {
@@ -224,6 +216,22 @@ fn generate_try_from(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStr
 
     let target_name_str_ident = target_ident.to_string();
 
+    let guess_block = if try_from_guess_vec.is_empty() {
+        quote! {
+            Err(Self::Error::from(format!("failed to convert to {} :invalid value", #target_name_str_ident)))
+        }
+    } else {
+        quote! {
+            let mut fallback_field : Option<&str> = None;
+            let mut fallback_result : Option<Self> = None;
+            #(#try_from_guess_vec)*
+            match fallback_result {
+                Some(v) => Ok(v),
+                None => Err(Self::Error::from(format!("failed to convert to {} :invalid value", #target_name_str_ident)))
+            }
+        }
+    };
+
     let expand = quote! {
         impl TryFrom<&str> for #target_ident {
             type Error = Box<dyn std::error::Error>;
@@ -232,17 +240,7 @@ fn generate_try_from(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStr
                 match value {
                    #(#try_from_arm_vec,)*
                     _ => {
-                        let mut fallback_vec : Vec<(&str, Self)> = vec![];
-                        {#(#try_from_guess_vec)*}
-                        match fallback_vec.len() {
-                            0 => Err(Self::Error::from(format!("failed to convert to {} :invalid value", #target_name_str_ident))),
-                            1 => Ok(fallback_vec.iter().next().unwrap().1),
-                            _ => Err(Self::Error::from(
-                                format!("#[str(...)] attribute not set and guess is ambiguous, all following types accept this try_from: {:#?}",
-                                   fallback_vec.iter().map(|x|
-                                        x.0.to_string()
-                                ).collect::<Vec<String>>())))
-                        }
+                        #guess_block
                     },
                 }
             }
@@ -319,9 +317,6 @@ fn generate_to_string(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenSt
             // Do not have a #[str(..)] on this field.
             // Convert from/to string with rule.
             if let Fields::Unnamed(_) = &variant.fields {
-                // return Err(compiling_error!(v.span(), "this member has embedded unnamed field, but does not have a \"#[str(...)]\" attribute, which is not allowed"));
-                // [(choice1, result1), (choice2, result2)]
-                //
                 to_string_arm_vec.push(quote! {
                     #target_ident::#field_ident(v) => v.to_string()
                 });

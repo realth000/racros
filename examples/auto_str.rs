@@ -23,7 +23,6 @@ enum MyEnum3 {
     #[str("E31")]
     E31,
     E32TesT,
-    #[str("e2")] // must have str attribute here because it has embedded enum
     E33Test(MyEnum2),
 }
 
@@ -46,6 +45,10 @@ fn check_try_from() {
     assert!(matches!(MyEnum::try_from("e4"), Err(_)));
 
     assert!(matches!(MyEnum2::try_from("E21"), Ok(MyEnum2::E21)));
+    assert!(matches!(
+        MyEnum2::try_from("e2"),
+        Ok(MyEnum2::E22(MyEnum::E2))
+    ));
     assert!(matches!(
         MyEnum2::try_from("e1"),
         Ok(MyEnum2::E22(MyEnum::E1))

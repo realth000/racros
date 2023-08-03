@@ -39,8 +39,14 @@ mod util;
 ///     #[str("E31")]
 ///     E31,
 ///     E32TesT,
-///     #[str("e2")] // must have str attribute here because it has embedded enum
+///     #[str("e2")]
 ///     E33Test(MyEnum2),
+/// }
+///
+/// #[derive(AutoStr)]
+/// enum MyEnum4 {
+///     E41(MyEnum),
+///     E42(MyEnum2),
 /// }
 ///
 /// assert!(matches!(MyEnum::try_from("e1"), Ok(MyEnum::E1)));
@@ -72,6 +78,11 @@ mod util;
 /// assert_eq!(MyEnum3::E31.to_string(), "E31");
 /// assert_eq!(MyEnum3::E32TesT.to_string(), "e32test");
 /// assert_eq!(MyEnum3::E33Test(MyEnum2::E22(MyEnum::E3)).to_string(), "e3");
+/// assert!(matches!(
+///     MyEnum4::try_from("E1"),
+///     Ok(MyEnum4::E41(MyEnum::E1))
+/// ));
+/// assert!(matches!(MyEnum4::try_from("e1"), Err(_)));
 ///
 /// ```
 #[proc_macro_derive(AutoStr, attributes(str, autorule))]
