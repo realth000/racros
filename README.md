@@ -51,7 +51,8 @@ impl ToString for MyEnum {
 
 ```
 
-The string format can be set to `lowercase`, `UPPERCASE`, `camelCase` or `PascalCase` by adding a `#[autorule = "xxxx"]` attribute to the enum:
+The string format can be set to `lowercase`, `UPPERCASE`, `camelCase` or `PascalCase` by adding a `#[autorule = "xxxx"]`
+attribute to the enum:
 
 ``` rust
 #[derive(AutoStr)]
@@ -87,7 +88,7 @@ impl ToString for MyEnum {
 }
 ```
 
-In addition, adding the `#[str(...)]` attribute to enum field will override the default conversion.
+In addition, adding the `#[str(...)]` attribute to enum field will override the default format.
 
 ``` rust
 #[derive(AutoStr)]
@@ -123,6 +124,79 @@ impl ToString for MyEnum {
         }
     }
 }
+```
+
+Support embedded enums:
+
+``` rust
+
+enum MyEnum4 {
+    E41(MyEnum),
+    E42(MyEnum2),
+}
+impl TryFrom<&str> for MyEnum4 {
+    type Error = Box<dyn std::error::Error>;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value {
+            _ => {
+                let mut fallback_field: Option<&str> = None;
+                let mut fallback_result: Option<Self> = None;
+                if let Ok(v) = MyEnum::try_from(value) {
+                    if fallback_result.is_some() {
+                        return Err(
+                            Self::Error::from({
+                                format!(
+                                    "#[str(...)] attribute not set and fallback guess is ambiguous: both {} and {} can accept this convert",
+                                    fallback_field.unwrap(),
+                                    "MyEnum",
+                                )
+                            }),
+                        );
+                    }
+                    fallback_field = Some("MyEnum");
+                    fallback_result = Some(MyEnum4::E41(v));
+                }
+                if let Ok(v) = MyEnum2::try_from(value) {
+                    if fallback_result.is_some() {
+                        return Err(
+                            Self::Error::from({
+                                format_args!(
+                                    "#[str(...)] attribute not set and fallback guess is ambiguous: both {} and {} can accept this convert",
+                                    fallback_field.unwrap(),
+                                    "MyEnum2",
+                                )
+                            }),
+                        );
+                    }
+                    fallback_field = Some("MyEnum2");
+                    fallback_result = Some(MyEnum4::E42(v));
+                }
+                match fallback_result {
+                    Some(v) => Ok(v),
+                    None => {
+                        Err(
+                            Self::Error::from({
+                                format_args!(
+                                    "failed to convert to {} :invalid value",
+                                    "MyEnum4",
+                                )
+                            }),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+impl ToString for MyEnum4 {
+    fn to_string(&self) -> String {
+        match self {
+            MyEnum4::E41(v) => v.to_string(),
+            MyEnum4::E42(v) => v.to_string(),
+        }
+    }
+}
+
 ```
 
 ### Rust Doc
@@ -169,6 +243,12 @@ enum MyEnum3 {
     E33Test(MyEnum2),
 }
 
+#[derive(AutoStr)]
+enum MyEnum4 {
+    E41(MyEnum),
+    E42(MyEnum2),
+}
+
 assert!(matches!(MyEnum::try_from("e1"), Ok(MyEnum::E1)));
 assert!(matches!(MyEnum::try_from("E1"), Ok(MyEnum::E1)));
 assert!(matches!(MyEnum::try_from("e2"), Ok(MyEnum::E2)));
@@ -198,5 +278,11 @@ assert_eq!(MyEnum2::E22(MyEnum::E1).to_string(), "e1");
 assert_eq!(MyEnum3::E31.to_string(), "E31");
 assert_eq!(MyEnum3::E32TesT.to_string(), "e32test");
 assert_eq!(MyEnum3::E33Test(MyEnum2::E22(MyEnum::E3)).to_string(), "e3");
+
+assert!(matches!(
+    MyEnum4::try_from("E1"),
+    Ok(MyEnum4::E41(MyEnum::E1))
+));
+assert!(matches!(MyEnum4::try_from("e1"), Err(_)));
 
 ```
