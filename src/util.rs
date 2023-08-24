@@ -95,3 +95,25 @@ pub(crate) fn to_pascal_case(str: &str) -> String {
     }
     ret
 }
+
+/// Convert to snake_case:
+///
+/// * "HttpClient" => "http_client"
+/// * "httpClient" => "http_client"
+/// * "HTTPClient" => "http_client"
+pub(crate) fn to_snake_case(str: &str) -> String {
+    let mut ret = String::new();
+    for (index, ch) in str.chars().collect::<Vec<_>>().iter().enumerate() {
+        if index != 0 && ch.is_uppercase() {
+            ret.push('_');
+        }
+        ret.push(
+            ch.to_lowercase()
+                .collect::<Vec<_>>()
+                .first()
+                .unwrap()
+                .clone(),
+        );
+    }
+    ret
+}

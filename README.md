@@ -149,7 +149,7 @@ impl ToString for MyEnum {
 
 ```
 
-The string format can be set to `lowercase`, `UPPERCASE`, `camelCase` or `PascalCase` by adding a `#[autorule = "xxxx"]`
+The string format can be set to `lowercase`, `UPPERCASE`, `camelCase`, `PascalCase` or `snake_case` by adding a `#[autorule = "xxxx"]`
 attribute to the enum:
 
 ``` rust
