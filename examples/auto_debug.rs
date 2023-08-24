@@ -1,4 +1,4 @@
-use std::fmt::Formatter;
+use std::fmt::{format, Formatter};
 
 use racros::AutoDebug;
 
@@ -37,6 +37,14 @@ struct Foo2 {
     foo2: MyType,
 }
 
+#[derive(AutoDebug)]
+enum Foo3 {
+    Foo1,
+    Foo2((i32, u32)),
+    Foo3(Foo2),
+    Foo4 { a: i32, b: u32 },
+}
+
 fn main() {
     let foo1 = Foo1 {
         foo1: MyType {},
@@ -45,10 +53,8 @@ fn main() {
         foo4: MyType {},
     };
 
-    println!("{:#?}", foo1);
-
     assert_eq!(
-        std::fmt::format(format_args!("{:#?}", foo1)),
+        format(format_args!("{:#?}", foo1)),
         r#"Foo1 {
     my_foo1: debug MyType,
     foo3: display MyType,
@@ -61,12 +67,48 @@ fn main() {
         foo2: MyType {},
     };
 
-    println!("{:#?}", foo2);
     assert_eq!(
-        std::fmt::format(format_args!("{:#?}", foo2)),
+        format(format_args!("{:#?}", foo2)),
         r#"Foo2(
     debug MyType,
     display MyType,
 )"#
+    );
+
+    let foo31 = Foo3::Foo1;
+    assert_eq!(format(format_args!("{:#?}", foo31)), r#""Foo1""#);
+
+    let foo32 = Foo3::Foo2((-1, 2));
+    assert_eq!(
+        format(format_args!("{:#?}", foo32)),
+        r#"Foo2(
+    (
+        -1,
+        2,
+    ),
+)"#
+    );
+
+    let foo33 = Foo3::Foo3(Foo2 {
+        foo1: MyType {},
+        foo2: MyType {},
+    });
+    assert_eq!(
+        format(format_args!("{:#?}", foo33)),
+        r#"Foo3(
+    Foo2(
+        debug MyType,
+        display MyType,
+    ),
+)"#
+    );
+
+    let foo34 = Foo3::Foo4 { a: -100, b: 200 };
+    assert_eq!(
+        format(format_args!("{:#?}", foo34)),
+        r#"{
+    a: -100,
+    b: 200,
+}"#
     );
 }

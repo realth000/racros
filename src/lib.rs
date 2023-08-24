@@ -193,7 +193,7 @@ pub fn copy_with(input: TokenStream) -> TokenStream {
     copy_with::copy_with_internal(input)
 }
 
-/// Generate debug trait implementation for structs with control.
+/// Generate debug trait implementation for structs and enums with control.
 ///
 /// # Usage
 ///
@@ -210,13 +210,18 @@ pub fn copy_with(input: TokenStream) -> TokenStream {
 ///   * `#[debug_value = "foo"]` override field value with "foo".
 ///   * `#[debug_ignore]` will ignore this field in the output.
 ///   * `#[debug_debug]` will use [Debug] trait implementation for this field in output.
-///   * `#[debug_display]` will use [Display] trait implementation for this field in output.
+///   * `#[debug_display]` will use `Display` trait implementation for this field in output.
+///
+/// ## Enum Variant Attributes
+///   * `#[debug_ignore]`
+///   * `#[debug_debug]`
+///   * `#[debug_display]`
 ///
 /// # Example
 ///
 /// ```
 /// use racros::AutoDebug;
-/// use std::fmt::Formatter;
+/// use std::fmt::{format, Formatter};
 ///
 /// struct MyType {}
 ///
@@ -231,6 +236,8 @@ pub fn copy_with(input: TokenStream) -> TokenStream {
 ///         f.write_str("display MyType")
 ///     }
 /// }
+///
+/// // Struct
 ///
 /// #[derive(AutoDebug)]
 /// struct Foo1 {
@@ -253,39 +260,68 @@ pub fn copy_with(input: TokenStream) -> TokenStream {
 ///     foo2: MyType,
 /// }
 ///
-/// fn main() {
-///     let foo1 = Foo1 {
-///         foo1: MyType {},
-///         foo2: MyType {},
-///         foo3: MyType {},
-///         foo4: MyType {},
-///     };
+/// let foo1 = Foo1 {
+///     foo1: MyType {},
+///     foo2: MyType {},
+///     foo3: MyType {},
+///     foo4: MyType {},
+/// };
 ///
-///     println!("{:#?}", foo1);
-///
-///     assert_eq!(
-///         std::fmt::format(format_args!("{:#?}", foo1)),
-///         r#"Foo1 {
+/// assert_eq!(
+///     format(format_args!("{:#?}", foo1)),
+///     r#"Foo1 {
 ///     my_foo1: debug MyType,
 ///     foo3: display MyType,
 ///     foo4: "foo4, MyType",
 /// }"#
-///      );
+///  );
 ///
-///     let foo2 = Foo2 {
-///         foo1: MyType {},
-///         foo2: MyType {},
-///     };
+/// let foo2 = Foo2 {
+///     foo1: MyType {},
+///     foo2: MyType {},
+/// };
 ///
-///     println!("{:#?}", foo2);
-///     assert_eq!(
-///         std::fmt::format(format_args!("{:#?}", foo2)),
-///         r#"Foo2(
+/// assert_eq!(
+///     format(format_args!("{:#?}", foo2)),
+///     r#"Foo2(
 ///     debug MyType,
 ///     display MyType,
 /// )"#
 ///     );
+///
+/// // Enum
+///
+/// #[derive(AutoDebug)]
+/// enum Foo3 {
+///     Foo1,
+///     Foo2((i32, u32)),
+///     Foo3(Foo2),
+///     Foo4 { a: i32, b: u32 },
 /// }
+///
+/// let foo33 = Foo3::Foo3(Foo2 {
+///     foo1: MyType {},
+///     foo2: MyType {},
+/// });
+/// assert_eq!(
+///     format(format_args!("{:#?}", foo33)),
+///     r#"Foo3(
+///     Foo2(
+///         debug MyType,
+///         display MyType,
+///     ),
+/// )"#
+/// );
+///
+/// let foo34 = Foo3::Foo4 { a: -100, b: 200 };
+/// assert_eq!(
+///     format(format_args!("{:#?}", foo34)),
+///     r#"{
+///     a: -100,
+///     b: 200,
+/// }"#
+/// );
+///
 /// ```
 ///
 #[proc_macro_derive(
