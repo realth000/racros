@@ -73,7 +73,7 @@ pub fn auto_str_internal(input: TokenStream) -> TokenStream {
     let try_from_stream = match generate_try_from(&ast, &rule) {
         Ok(v) => v,
         Err(e) => {
-            return e.into();
+            return e;
         }
     };
     expand.extend(try_from_stream);
@@ -81,12 +81,12 @@ pub fn auto_str_internal(input: TokenStream) -> TokenStream {
     let to_string_stream = match generate_to_string(&ast, &rule) {
         Ok(v) => v,
         Err(e) => {
-            return e.into();
+            return e;
         }
     };
     expand.extend(to_string_stream);
 
-    expand.into()
+    expand
 }
 
 fn generate_try_from(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStream, TokenStream> {
@@ -208,7 +208,7 @@ fn generate_try_from(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStr
                 });
             } else {
                 let field_ident_str =
-                    string_target_with_rule(&rule, field_ident.to_string().as_str());
+                    string_target_with_rule(rule, field_ident.to_string().as_str());
                 try_from_arm_vec.push(quote! {
                     #field_ident_str => Ok(#target_ident::#field_ident)
                 });
@@ -324,7 +324,7 @@ fn generate_to_string(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenSt
                 });
             } else {
                 let tmp = string_target_with_rule(
-                    &rule,
+                    rule,
                     String::from(variant.ident.to_string().trim_matches('"')).as_str(),
                 );
                 to_string_arm_vec.push(quote! {

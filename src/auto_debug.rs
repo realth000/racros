@@ -27,10 +27,10 @@ pub fn auto_debug_internal(input: TokenStream) -> TokenStream {
         Data::Struct(v) => auto_debug_struct(&ast, v),
         Data::Enum(v) => auto_debug_enum(&ast, v),
         Data::Union(_) => {
-            return compiling_error!(
+            compiling_error!(
                 proc_macro2::Span::call_site(),
                 "#derive[(AutoDebug)] does not support union",
-            );
+            )
         }
     }
 }

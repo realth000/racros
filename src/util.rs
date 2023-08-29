@@ -38,15 +38,9 @@ pub(crate) fn to_camel_case(str: &str) -> String {
 
     for (index, ch) in str.chars().collect::<Vec<_>>().iter().enumerate() {
         if upper_state[index] {
-            ret.push(ch.clone());
+            ret.push(*ch);
         } else {
-            ret.push(
-                ch.to_lowercase()
-                    .collect::<Vec<_>>()
-                    .first()
-                    .unwrap()
-                    .clone(),
-            );
+            ret.push(*ch.to_lowercase().collect::<Vec<_>>().first().unwrap());
         }
     }
     ret
@@ -82,15 +76,9 @@ pub(crate) fn to_pascal_case(str: &str) -> String {
 
     for (index, ch) in str.chars().collect::<Vec<_>>().iter().enumerate() {
         if upper_state[index] {
-            ret.push(ch.clone());
+            ret.push(*ch);
         } else {
-            ret.push(
-                ch.to_lowercase()
-                    .collect::<Vec<_>>()
-                    .first()
-                    .unwrap()
-                    .clone(),
-            );
+            ret.push(*ch.to_lowercase().collect::<Vec<_>>().first().unwrap());
         }
     }
     ret
@@ -107,13 +95,7 @@ pub(crate) fn to_snake_case(str: &str) -> String {
         if index != 0 && ch.is_uppercase() {
             ret.push('_');
         }
-        ret.push(
-            ch.to_lowercase()
-                .collect::<Vec<_>>()
-                .first()
-                .unwrap()
-                .clone(),
-        );
+        ret.push(*ch.to_lowercase().collect::<Vec<_>>().first().unwrap());
     }
     ret
 }
