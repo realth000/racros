@@ -37,12 +37,13 @@ fn main() {
     check_to_string();
 }
 
+#[allow(clippy::cognitive_complexity)]
 fn check_try_from() {
     assert!(matches!(MyEnum::try_from("e1"), Ok(MyEnum::E1)));
     assert!(matches!(MyEnum::try_from("E1"), Ok(MyEnum::E1)));
     assert!(matches!(MyEnum::try_from("e2"), Ok(MyEnum::E2)));
     assert!(matches!(MyEnum::try_from("ee"), Ok(MyEnum::E3)));
-    assert!(matches!(MyEnum::try_from("e4"), Err(_)));
+    assert!(MyEnum::try_from("e4").is_err());
 
     assert!(matches!(MyEnum2::try_from("E21"), Ok(MyEnum2::E21)));
     assert!(matches!(
@@ -69,7 +70,7 @@ fn check_try_from() {
         MyEnum4::try_from("E1"),
         Ok(MyEnum4::E41(MyEnum::E1))
     ));
-    assert!(matches!(MyEnum4::try_from("e1"), Err(_)));
+    assert!(MyEnum4::try_from("e1").is_err());
 }
 
 fn check_to_string() {

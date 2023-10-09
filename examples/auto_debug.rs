@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use std::fmt::{format, Formatter};
 
 use racros::AutoDebug;
@@ -54,7 +55,7 @@ fn main() {
     };
 
     assert_eq!(
-        format(format_args!("{:#?}", foo1)),
+        format(format_args!("{foo1:#?}")),
         r#"Foo1 {
     my_foo1: debug MyType,
     foo3: display MyType,
@@ -68,7 +69,7 @@ fn main() {
     };
 
     assert_eq!(
-        format(format_args!("{:#?}", foo2)),
+        format(format_args!("{foo2:#?}")),
         r#"Foo2(
     debug MyType,
     display MyType,
@@ -76,11 +77,11 @@ fn main() {
     );
 
     let foo31 = Foo3::Foo1;
-    assert_eq!(format(format_args!("{:#?}", foo31)), r#""Foo1""#);
+    assert_eq!(format(format_args!("{foo31:#?}")), r#""Foo1""#);
 
     let foo32 = Foo3::Foo2((-1, 2));
     assert_eq!(
-        format(format_args!("{:#?}", foo32)),
+        format(format_args!("{foo32:#?}")),
         r#"Foo2(
     (
         -1,
@@ -94,7 +95,7 @@ fn main() {
         foo2: MyType {},
     });
     assert_eq!(
-        format(format_args!("{:#?}", foo33)),
+        format(format_args!("{foo33:#?}")),
         r#"Foo3(
     Foo2(
         debug MyType,
@@ -105,7 +106,7 @@ fn main() {
 
     let foo34 = Foo3::Foo4 { a: -100, b: 200 };
     assert_eq!(
-        format(format_args!("{:#?}", foo34)),
+        format(format_args!("{foo34:#?}")),
         r#"{
     a: -100,
     b: 200,
