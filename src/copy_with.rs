@@ -8,9 +8,7 @@ use crate::util::compiling_error;
 pub fn copy_with_internal(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
     // println!("{:#?}", ast);
-    let struct_enum = if let Data::Struct(struct_enum) = &ast.data {
-        struct_enum
-    } else {
+    let Data::Struct(struct_enum) = &ast.data else {
         return compiling_error!(
             proc_macro2::Span::call_site(),
             "#[derive(CopyWith)] only support structs"

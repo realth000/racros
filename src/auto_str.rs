@@ -21,9 +21,7 @@ enum Rules {
 pub fn auto_str_internal(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
     // println!(">>>> ast: {:#?}", &ast);
-    let _ = if let Data::Enum(data_enum) = &ast.data {
-        data_enum
-    } else {
+    let Data::Enum(_) = &ast.data else {
         return compiling_error!(
             proc_macro2::Span::call_site(),
             "#[derive(TryStrFrom)] only support enums"
@@ -89,15 +87,14 @@ pub fn auto_str_internal(input: TokenStream) -> TokenStream {
     expand
 }
 
+#[allow(clippy::too_many_lines)]
 fn generate_try_from(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStream, TokenStream> {
     let target_ident = &ast.ident;
 
     let mut try_from_arm_vec: Vec<proc_macro2::TokenStream> = vec![];
     let mut try_from_guess_vec: Vec<proc_macro2::TokenStream> = vec![];
 
-    let data_enum = if let Data::Enum(data_enum) = &ast.data {
-        data_enum
-    } else {
+    let Data::Enum(data_enum) = &ast.data else {
         return Err(compiling_error!(
             proc_macro2::Span::call_site(),
             "#[derive(AutoStr)] only support enums"
@@ -254,9 +251,7 @@ fn generate_try_from(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStr
 
 fn generate_to_string(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStream, TokenStream> {
     // println!(">>>> ast: {:#?}", &ast);
-    let data_enum = if let Data::Enum(data_enum) = &ast.data {
-        data_enum
-    } else {
+    let Data::Enum(data_enum) = &ast.data else {
         return Err(compiling_error!(
             proc_macro2::Span::call_site(),
             "#[derive(AutoStr)] only support enums"
@@ -313,7 +308,7 @@ fn generate_to_string(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenSt
                         #target_ident::#field_ident(v) => v.to_string()
                     });
                 }
-                _ => {}
+                Fields::Named(_) => {}
             }
         } else {
             // Do not have a #[str(..)] on this field.
@@ -349,8 +344,8 @@ fn generate_to_string(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenSt
 
 fn string_target_with_rule(rule: &Option<Rules>, str: &str) -> String {
     match rule {
-        Some(Rules::Lowercase) => str.to_lowercase().clone(),
-        Some(Rules::Uppercase) => str.to_uppercase().clone(),
+        Some(Rules::Lowercase) => str.to_lowercase(),
+        Some(Rules::Uppercase) => str.to_uppercase(),
         Some(Rules::CamelCase) => to_camel_case(str),
         Some(Rules::PascalCase) => to_pascal_case(str),
         Some(Rules::SnakeCase) => to_snake_case(str),

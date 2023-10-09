@@ -10,10 +10,10 @@ pub(crate) use compiling_error;
 
 /// Convert to camelCase:
 ///
-/// * "HttpClient" => "httpClient"
-/// * "httpClient" => "httpClient"
-/// * "HTTPClient" => "httpClient"
-pub(crate) fn to_camel_case(str: &str) -> String {
+/// * `HttpClient` => `httpClient`
+/// * `httpClient` => `httpClient`
+/// * `HTTPClient` => `httpClient`
+pub fn to_camel_case(str: &str) -> String {
     let mut ret = String::new();
     let mut upper_state: Vec<bool> = vec![];
     for ch in &str.chars().collect::<Vec<_>>() {
@@ -48,10 +48,10 @@ pub(crate) fn to_camel_case(str: &str) -> String {
 
 /// Convert to camelCase:
 ///
-/// * "HttpClient" => "HttpClient"
-/// * "httpClient" => "HttpClient"
-/// * "HTTPClient" => "HttpClient"
-pub(crate) fn to_pascal_case(str: &str) -> String {
+/// * `HttpClient` => `HttpClient`
+/// * `httpClient` => `HttpClient`
+/// * `HTTPClient` => `HttpClient`
+pub fn to_pascal_case(str: &str) -> String {
     let mut ret = String::new();
     let mut upper_state: Vec<bool> = vec![];
     for ch in &str.chars().collect::<Vec<_>>() {
@@ -84,12 +84,12 @@ pub(crate) fn to_pascal_case(str: &str) -> String {
     ret
 }
 
-/// Convert to snake_case:
+/// Convert to snake case:
 ///
-/// * "HttpClient" => "http_client"
-/// * "httpClient" => "http_client"
-/// * "HTTPClient" => "http_client"
-pub(crate) fn to_snake_case(str: &str) -> String {
+/// * `HttpClient` => `http_client`
+/// * `httpClient` => `http_client`
+/// * `HTTPClient` => `http_client`
+pub fn to_snake_case(str: &str) -> String {
     let mut ret = String::new();
     for (index, ch) in str.chars().collect::<Vec<_>>().iter().enumerate() {
         if index != 0 && ch.is_uppercase() {

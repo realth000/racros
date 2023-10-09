@@ -35,6 +35,7 @@ pub fn auto_debug_internal(input: TokenStream) -> TokenStream {
     }
 }
 
+#[allow(clippy::too_many_lines)]
 fn auto_debug_struct(ast: &DeriveInput, data_struct: &DataStruct) -> TokenStream {
     let debug_placeholder = "{:#?}";
     let display_placeholder = "{}";
@@ -135,11 +136,11 @@ fn auto_debug_struct(ast: &DeriveInput, data_struct: &DataStruct) -> TokenStream
                     match path.segments.last().unwrap().ident.to_string().as_str() {
                         "debug_name" => {
                             field_override_name =
-                                Some(token.token().to_string().trim_matches('"').to_string())
+                                Some(token.token().to_string().trim_matches('"').to_string());
                         }
                         "debug_value" => {
                             field_override_value =
-                                Some(token.token().to_string().trim_matches('"').to_string())
+                                Some(token.token().to_string().trim_matches('"').to_string());
                         }
                         _ => continue,
                     }
@@ -161,10 +162,8 @@ fn auto_debug_struct(ast: &DeriveInput, data_struct: &DataStruct) -> TokenStream
                 continue;
             }
 
-            let field_debug_name = match field_override_name {
-                Some(v) => v,
-                None => field_ident.to_string(),
-            };
+            let field_debug_name =
+                field_override_name.map_or_else(|| field_ident.to_string(), |v| v);
 
             let field_placeholder = match field_format {
                 Some(DebugFormat::Debug) => debug_placeholder,
@@ -175,10 +174,8 @@ fn auto_debug_struct(ast: &DeriveInput, data_struct: &DataStruct) -> TokenStream
                 },
             };
 
-            let field_value = match field_override_value {
-                Some(v) => quote! {#v},
-                None => quote! {self.#field_ident},
-            };
+            let field_value =
+                field_override_value.map_or_else(|| quote! {self.#field_ident}, |v| quote! {#v});
 
             match debug_style {
                 DebugStyle::Struct => field_vec.push(quote! {
@@ -188,9 +185,6 @@ fn auto_debug_struct(ast: &DeriveInput, data_struct: &DataStruct) -> TokenStream
                     ff.field(&format_args!(#field_placeholder, #field_value));
                 }),
             }
-        } else {
-            // TODO: Check skip unnamed fields.
-            continue;
         }
     }
 
@@ -207,6 +201,7 @@ fn auto_debug_struct(ast: &DeriveInput, data_struct: &DataStruct) -> TokenStream
     expand.into()
 }
 
+#[allow(clippy::too_many_lines)]
 fn auto_debug_enum(ast: &DeriveInput, data_enum: &DataEnum) -> TokenStream {
     let debug_placeholder = "{:#?}";
     let display_placeholder = "{}";
@@ -314,7 +309,7 @@ fn auto_debug_enum(ast: &DeriveInput, data_enum: &DataEnum) -> TokenStream {
                     let name_str = name.to_string();
 
                     // Fill left side.
-                    let fill_ident = Ident::new(format!("v{}", field_index).as_str(), field.span());
+                    let fill_ident = Ident::new(format!("v{field_index}").as_str(), field.span());
                     field_left_vec.push(quote! {
                         #name: #fill_ident
                     });

@@ -5,7 +5,7 @@ mod auto_str;
 mod copy_with;
 mod util;
 
-/// Automatically add [TryFrom] trait to the attached enum.
+/// Automatically add `[TryFrom]` trait to the attached enum.
 ///
 /// # Usage:
 ///   * `str`: add `#[str("str1")]` to field will add
