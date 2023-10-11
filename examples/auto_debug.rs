@@ -46,6 +46,24 @@ enum Foo3 {
     Foo4 { a: i32, b: u32 },
 }
 
+#[derive(AutoDebug)]
+enum Foo4<T: Sized + std::fmt::Debug, U>
+where
+    U: Sized + std::fmt::Debug,
+{
+    Foo1(T),
+    Foo2(U),
+    Foo3 { a: T, b: U },
+}
+
+#[derive(AutoDebug)]
+struct Foo5<'a, T>
+where
+    T: Sized + std::fmt::Debug,
+{
+    foo1: &'a T,
+}
+
 fn main() {
     let foo1 = Foo1 {
         foo1: MyType {},
@@ -110,6 +128,25 @@ fn main() {
         r#"{
     a: -100,
     b: 200,
+}"#
+    );
+
+    let my_type = MyType {};
+    let foo4 = Foo4::Foo3 { a: my_type, b: 4 };
+    assert_eq!(
+        format(format_args!("{foo4:#?}")),
+        r#"{
+    a: debug MyType,
+    b: 4,
+}"#
+    );
+
+    let my_type5 = MyType {};
+    let foo5 = Foo5 { foo1: &my_type5 };
+    assert_eq!(
+        format(format_args!("{foo5:#?}")),
+        r#"Foo5 {
+    foo1: &'a debug MyType,
 }"#
     );
 }

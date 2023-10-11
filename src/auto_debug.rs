@@ -110,6 +110,7 @@ fn auto_debug_struct(ast: &DeriveInput, data_struct: &DataStruct) -> TokenStream
         if let Field {
             ident: Some(field_ident),
             attrs,
+            ty,
             ..
         } = &field
         {
@@ -165,17 +166,29 @@ fn auto_debug_struct(ast: &DeriveInput, data_struct: &DataStruct) -> TokenStream
             let field_debug_name =
                 field_override_name.map_or_else(|| field_ident.to_string(), |v| v);
 
-            let field_placeholder = match field_format {
+            let mut raw_field_placeholder = match field_format {
                 Some(DebugFormat::Debug) => debug_placeholder,
                 Some(DebugFormat::Display) => display_placeholder,
                 None => match debug_format {
                     DebugFormat::Debug => debug_placeholder,
                     DebugFormat::Display => display_placeholder,
                 },
-            };
+            }
+            .to_string();
+
+            // If this field is a reference type, prepend "&'{lifetime} " to placeholder.
+            if let syn::Type::Reference(syn::TypeReference {
+                lifetime: Some(syn::Lifetime { ident, .. }),
+                ..
+            }) = ty
+            {
+                raw_field_placeholder = format!("&'{ident} {raw_field_placeholder}");
+            }
 
             let field_value =
                 field_override_value.map_or_else(|| quote! {self.#field_ident}, |v| quote! {#v});
+
+            let field_placeholder = raw_field_placeholder.as_str();
 
             match debug_style {
                 DebugStyle::Struct => field_vec.push(quote! {
