@@ -21,7 +21,8 @@ enum Rules {
 pub fn auto_str_internal(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
     // println!(">>>> ast: {:#?}", &ast);
-    let Data::Enum(_) = &ast.data else {
+    if let Data::Enum(_) = &ast.data {
+    } else {
         return compiling_error!(
             proc_macro2::Span::call_site(),
             "#[derive(TryStrFrom)] only support enums"
@@ -94,11 +95,14 @@ fn generate_try_from(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStr
     let mut try_from_arm_vec: Vec<proc_macro2::TokenStream> = vec![];
     let mut try_from_guess_vec: Vec<proc_macro2::TokenStream> = vec![];
 
-    let Data::Enum(data_enum) = &ast.data else {
-        return Err(compiling_error!(
-            proc_macro2::Span::call_site(),
-            "#[derive(AutoStr)] only support enums"
-        ));
+    let data_enum = match &ast.data {
+        Data::Enum(v) => v,
+        _ => {
+            return Err(compiling_error!(
+                proc_macro2::Span::call_site(),
+                "#[derive(AutoStr)] only support enums"
+            ));
+        }
     };
 
     for variant in &data_enum.variants {
@@ -252,11 +256,14 @@ fn generate_try_from(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStr
 
 fn generate_to_string(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStream, TokenStream> {
     // println!(">>>> ast: {:#?}", &ast);
-    let Data::Enum(data_enum) = &ast.data else {
-        return Err(compiling_error!(
-            proc_macro2::Span::call_site(),
-            "#[derive(AutoStr)] only support enums"
-        ));
+    let data_enum = match &ast.data {
+        Data::Enum(v) => v,
+        _ => {
+            return Err(compiling_error!(
+                proc_macro2::Span::call_site(),
+                "#[derive(AutoStr)] only support enums"
+            ));
+        }
     };
 
     let target_ident = &ast.ident;
