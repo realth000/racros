@@ -124,7 +124,7 @@ enum MyEnum {
 ``` rust
 
 impl TryFrom<&str> for MyEnum {
-    type Error = Box<dyn std::error::Error>;
+    type Error = String;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
@@ -162,7 +162,7 @@ enum MyEnum {
 }
 
 impl TryFrom<&str> for MyEnum {
-    type Error = Box<dyn std::error::Error>;
+    type Error = String;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
@@ -200,7 +200,7 @@ enum MyEnum {
 }
 
 impl TryFrom<&str> for MyEnum {
-    type Error = Box<dyn std::error::Error>;
+    type Error = String;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
@@ -233,7 +233,8 @@ enum MyEnum4 {
     E42(MyEnum2),
 }
 impl TryFrom<&str> for MyEnum4 {
-    type Error = Box<dyn std::error::Error>;
+    type Error = String;
+    
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             _ => {
@@ -244,9 +245,10 @@ impl TryFrom<&str> for MyEnum4 {
                         return Err(
                             Self::Error::from({
                                 format!(
-                                    "#[str(...)] attribute not set and fallback guess is ambiguous: both {} and {} can accept this convert",
+                                    "#[str(...)] attribute not set and fallback guess is ambiguous: both {} and {} can accept this convert from \"{}\"",
                                     fallback_field.unwrap(),
                                     "MyEnum",
+                                    value,
                                 )
                             }),
                         );
@@ -259,9 +261,10 @@ impl TryFrom<&str> for MyEnum4 {
                         return Err(
                             Self::Error::from({
                                 format_args!(
-                                    "#[str(...)] attribute not set and fallback guess is ambiguous: both {} and {} can accept this convert",
+                                    "#[str(...)] attribute not set and fallback guess is ambiguous: both {} and {} can accept this convert from \"{}\"",
                                     fallback_field.unwrap(),
                                     "MyEnum2",
+                                    value,
                                 )
                             }),
                         );
@@ -275,8 +278,9 @@ impl TryFrom<&str> for MyEnum4 {
                         Err(
                             Self::Error::from({
                                 format_args!(
-                                    "failed to convert to {} :invalid value",
+                                    "failed to convert to {} :invalid value \"{}\"",
                                     "MyEnum4",
+                                    value,
                                 )
                             }),
                         )

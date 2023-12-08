@@ -18,7 +18,7 @@ mod util;
 /// ```
 /// use racros::AutoStr;
 ///
-/// #[derive(AutoStr)]
+/// #[derive(AutoStr, Debug)]
 /// enum MyEnum {
 ///     #[str("e1", "E1")]
 ///     E1,
@@ -28,14 +28,14 @@ mod util;
 ///     E3,
 /// }
 ///
-/// #[derive(AutoStr)]
+/// #[derive(AutoStr, Debug)]
 /// enum MyEnum2 {
 ///     E21,
 ///     #[str("e1", "e2")]
 ///     E22(MyEnum),
 /// }
 ///
-/// #[derive(AutoStr)]
+/// #[derive(AutoStr, Debug)]
 /// #[autorule = "lowercase"]
 /// enum MyEnum3 {
 ///     #[str("E31")]
@@ -45,7 +45,7 @@ mod util;
 ///     E33Test(MyEnum2),
 /// }
 ///
-/// #[derive(AutoStr)]
+/// #[derive(AutoStr, Debug)]
 /// enum MyEnum4 {
 ///     E41(MyEnum),
 ///     E42(MyEnum2),
@@ -84,7 +84,16 @@ mod util;
 ///     MyEnum4::try_from("E1"),
 ///     Ok(MyEnum4::E41(MyEnum::E1))
 /// ));
-/// assert!(matches!(MyEnum4::try_from("e1"), Err(_)));
+///
+/// assert_eq!(
+///     MyEnum4::try_from("e1").unwrap_err(),
+///     "#[str(...)] attribute not set and fallback guess is ambiguous: both MyEnum and MyEnum2 can accept this convert from \"e1\""
+/// );
+///
+/// assert_eq!(
+///     MyEnum4::try_from("e11").unwrap_err(),
+///     "failed to convert to MyEnum4 :invalid value \"e11\""
+/// );
 ///
 /// ```
 #[proc_macro_derive(AutoStr, attributes(str, autorule))]
