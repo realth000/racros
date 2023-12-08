@@ -1,3 +1,32 @@
+//! # racros
+//!
+//! Racros is a collection of rust macros.
+//!
+//! ## [`AutoDebug`]
+//!
+//! Works on structs and enums, similar to [`std::fmt::Debug`] but support some customization:
+//!
+//! * Specify field name or value in print message.
+//! * Ignore specified field.
+//! * Use [`std::fmt::Display`] instead of [`std::fmt:;Debug`] on specified field.
+//! * Set print style similar to printing tuple or struct.
+//!
+//! ## [`AutoStr`]
+//!
+//! Implement [`TryFrom`] `String` and [`ToString`] for enums with following features:
+//!
+//! * Specify what `String` value can convert from/to.
+//! * Allow convert from multiple `String` values.
+//! * Set default convert style: `lowercase`, `UPPERCASE`, `camelCase`, `PascalCase` and
+//!   `snake_case`.
+//!
+//! ## [`CopyWith`]
+//!
+//! Add a `copy_with` function for decorated type, copy value from another `Self` if that value is
+//! not `default` value.
+
+////////////////////////////////////////////////////////////////////////////////
+
 use proc_macro::TokenStream;
 
 mod auto_debug;
@@ -5,7 +34,7 @@ mod auto_str;
 mod copy_with;
 mod util;
 
-/// Automatically add `[TryFrom]` trait to the attached enum.
+/// Automatically add [`TryFrom`] `String` and [`ToString`] trait to the attached enum.
 ///
 /// # Usage:
 ///   * `str`: add `#[str("str1")]` to field will add

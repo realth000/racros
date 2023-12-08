@@ -6,7 +6,12 @@ Collection of rust macros.
 
 ### AutoDebug
 
-Generate debug trait implementation for structs with control.
+Works on structs and enums, similar to [`std::fmt::Debug`] but support some customization:
+
+* Specify field name or value in print message.
+* Ignore specified field.
+* Use [`std::fmt::Display`] instead of [`std::fmt:;Debug`] on specified field.
+* Set print style similar to printing tuple or struct.
 
 #### Basic Usage
 
@@ -104,7 +109,12 @@ display MyType,
 
 ### AutoStr
 
-Implement  `TryFrom`, `ToString` trait for enum types.
+Implement [`TryFrom`] `String` and [`ToString`] for enums with following features:
+
+* Specify what `String` value can convert from/to.
+* Allow convert from multiple `String` values.
+* Set default convert style: `lowercase`, `UPPERCASE`, `camelCase`, `PascalCase` and
+  `snake_case`.
 
 For the following code:
 
@@ -303,7 +313,7 @@ impl ToString for MyEnum4 {
 
 ### CopyWith
 
-Similar to `copyWith` functions in dart, generates a function that allow copying data from another instance an override value in `self` if that value is not default value.
+Add a `copy_with` function for decorated type, copy value from another `Self` if that value is not `default` value.
 
 #### Basic Usage
 

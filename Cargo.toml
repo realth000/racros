@@ -1,7 +1,13 @@
 [package]
 name = "racros"
 version = "0.1.0"
+description = "Collection of rust macros"
+categories = ["rust-patterns", "value-formatting"]
+keywords = ["derive", "macros"]
+repository = "https://github.com/realth000/racros"
+license= "MIT"
 edition = "2021"
+readme = "README.md"
 
 [lib]
 proc-macro = true
