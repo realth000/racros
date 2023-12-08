@@ -162,7 +162,7 @@ fn generate_try_from(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStr
                     tmp_vec.push(quote! {
                         match #wrapped_type::try_from(value) {
                             Ok(v) => Ok(#target_ident::#field_ident(v)),
-                            Err(e) => Err(Self::Error::from(format!("failed to convert to {}: {}", #target_name_str_ident, e)))
+                            Err(e) => Err(format!("failed to convert to {}: {}", #target_name_str_ident, e))
                         }
                     });
                     tmp_vec.push(quote! {});
@@ -197,7 +197,7 @@ fn generate_try_from(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStr
                 try_from_guess_vec.push(quote! {
                     if let Ok(v) = #wrapped_type::try_from(value) {
                         if fallback_result.is_some() {
-                            return Err(Self::Error::from(format!("#[str(...)] attribute not set and fallback guess is ambiguous: both {} and {} can accept this convert", fallback_field.unwrap(), #wrapped_type_str)));
+                            return Err(Self::Error::from(format!("#[str(...)] attribute not set and fallback guess is ambiguous: both {} and {} can accept this convert from \"{}\"", fallback_field.unwrap(), #wrapped_type_str, value)));
                         }
                         fallback_field = Some(#wrapped_type_str);
                         fallback_result = Some(#target_ident::#field_ident(v));
@@ -217,7 +217,7 @@ fn generate_try_from(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStr
 
     let guess_block = if try_from_guess_vec.is_empty() {
         quote! {
-            Err(Self::Error::from(format!("failed to convert to {} :invalid value", #target_name_str_ident)))
+            Err(format!("failed to convert to {} :invalid value \"{}\"", #target_name_str_ident, value))
         }
     } else {
         quote! {
@@ -226,14 +226,15 @@ fn generate_try_from(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenStr
             #(#try_from_guess_vec)*
             match fallback_result {
                 Some(v) => Ok(v),
-                None => Err(Self::Error::from(format!("failed to convert to {} :invalid value", #target_name_str_ident)))
+                None => Err(format!("failed to convert to {} :invalid value \"{}\"", #target_name_str_ident, value))
             }
         }
     };
 
     let expand = quote! {
         impl TryFrom<&str> for #target_ident {
-            type Error = Box<dyn std::error::Error>;
+            // type Error = Box<dyn std::error::Error>;
+            type Error = String;
 
             fn try_from(value: &str) -> Result<Self, Self::Error> {
                 match value {
