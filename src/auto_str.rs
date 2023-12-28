@@ -7,7 +7,7 @@ use syn::{
     Meta, MetaList, MetaNameValue,
 };
 
-use crate::util::{compiling_error, to_camel_case, to_pascal_case, to_snake_case};
+use crate::util::{compiling_error, to_camel_case, to_pascal_case, to_snake_case, to_screaming_case};
 
 #[derive(Debug)]
 enum Rules {
@@ -16,6 +16,7 @@ enum Rules {
     CamelCase,
     PascalCase,
     SnakeCase,
+    ScreamingCase,
 }
 
 pub fn auto_str_internal(input: TokenStream) -> TokenStream {
@@ -55,6 +56,7 @@ pub fn auto_str_internal(input: TokenStream) -> TokenStream {
                 "camelCase" => Some(Rules::CamelCase),
                 "PascalCase" => Some(Rules::PascalCase),
                 "snake_case" => Some(Rules::SnakeCase),
+                "SCREAMING_CASE" => Some(Rules::ScreamingCase),
                 _ => {
                     return compiling_error!(
                         token.span(),
@@ -357,6 +359,7 @@ fn string_target_with_rule(rule: &Option<Rules>, str: &str) -> String {
         Some(Rules::CamelCase) => to_camel_case(str),
         Some(Rules::PascalCase) => to_pascal_case(str),
         Some(Rules::SnakeCase) => to_snake_case(str),
+        Some(Rules::ScreamingCase) => to_screaming_case(str),
         None => str.to_string(),
     }
 }

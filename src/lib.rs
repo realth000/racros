@@ -40,7 +40,12 @@ mod util;
 ///   * `str`: add `#[str("str1")]` to field will add
 /// the conversion from literal "str1" to that field
 ///   * Support using multiple str: `#str("str")]`.
-///   * `#[autorule = "..." ]`, support autorule including `lowercase`, `UPPERCASE`, `camelCase` and `PascalCase`.
+///   * `#[autorule = "..." ]`, support autorules:
+///     * `lowercase`.
+///     * `UPPERCASE`.
+///     * `camelCase`.
+///     * `PascalCase`.
+///     * `SCREAMING_CASE`.
 ///
 /// # Example:
 ///

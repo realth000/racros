@@ -99,3 +99,13 @@ pub fn to_snake_case(str: &str) -> String {
     }
     ret
 }
+
+/// Convert to screaming case:
+///
+/// * `HttpClient` => `HTTP_CLIENT`
+/// * `httpClient` => `HTTP_CLIENT`
+/// * `HTTPClient` => `HTTP_CLIENT`
+pub fn to_screaming_case(str: &str) -> String {
+    let s = to_snake_case(str);
+    s.as_str().to_uppercase()
+}
