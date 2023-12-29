@@ -162,6 +162,7 @@ pub fn to_screaming_case(str: &str) -> String {
     for ss in s.chars() {
         if ss.is_uppercase() {
             ret.push('_');
+            ret.push(ss);
         } else {
             ret.push(char_convert_uppercase(&ss));
         }
@@ -192,8 +193,14 @@ mod tests {
     #[test]
     fn test_snake_case() {
         for s in STRS1 {
-            println!("{s}");
             assert_eq!(to_snake_case(s), "http_client");
+        }
+    }
+
+    #[test]
+    fn test_screaming_case() {
+        for s in STRS1 {
+            assert_eq!(to_screaming_case(s), "HTTP_CLIENT");
         }
     }
 }
