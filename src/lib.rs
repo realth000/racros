@@ -45,6 +45,7 @@ mod util;
 ///     * `UPPERCASE`.
 ///     * `camelCase`.
 ///     * `PascalCase`.
+///     * `snake_case`.
 ///     * `SCREAMING_CASE`.
 ///
 /// # Example:
