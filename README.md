@@ -113,8 +113,13 @@ Implement [`TryFrom`] `String` and [`ToString`] for enums with following feature
 
 * Specify what `String` value can convert from/to.
 * Allow convert from multiple `String` values.
-* Set default convert style: `lowercase`, `UPPERCASE`, `camelCase`, `PascalCase` and
-  `snake_case`.
+* Set default convert style:
+  * `lowercase`
+  * `UPPERCASE`
+  * `camelCase`
+  * `PascalCase`
+  * `snake_case`
+  * `SCREAMING_CASE`
 
 For the following code:
 
@@ -159,8 +164,14 @@ impl ToString for MyEnum {
 
 ```
 
-The string format can be set to `lowercase`, `UPPERCASE`, `camelCase`, `PascalCase` or `snake_case` by adding a `#[autorule = "xxxx"]`
-attribute to the enum:
+The string format can be set to
+  * `lowercase`
+  * `UPPERCASE`
+  * `camelCase`
+  * `PascalCase`
+  * `snake_case`
+  * `SCREAMING_CASE`
+by adding a `#[autorule = "xxxx"]` attribute to the enum:
 
 ``` rust
 #[derive(AutoStr)]
