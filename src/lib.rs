@@ -31,6 +31,7 @@ use proc_macro::TokenStream;
 
 mod auto_debug;
 mod auto_str;
+mod bundle_text;
 mod copy_with;
 mod util;
 
@@ -382,4 +383,9 @@ pub fn copy_with(input: TokenStream) -> TokenStream {
 )]
 pub fn auto_debug(input: TokenStream) -> TokenStream {
     auto_debug::auto_debug_internal(input)
+}
+
+#[proc_macro_derive(BundleText, attributes(bundle))]
+pub fn bundle_text(input: TokenStream) -> TokenStream {
+    bundle_text::bundle_text_internal(input)
 }
