@@ -114,12 +114,12 @@ Implement [`TryFrom`] `String` and [`ToString`] for enums with following feature
 * Specify what `String` value can convert from/to.
 * Allow convert from multiple `String` values.
 * Set default convert style:
-  * `lowercase`
-  * `UPPERCASE`
-  * `camelCase`
-  * `PascalCase`
-  * `snake_case`
-  * `SCREAMING_CASE`
+    * `lowercase`
+    * `UPPERCASE`
+    * `camelCase`
+    * `PascalCase`
+    * `snake_case`
+    * `SCREAMING_CASE`
 
 For the following code:
 
@@ -165,13 +165,14 @@ impl ToString for MyEnum {
 ```
 
 The string format can be set to
-  * `lowercase`
-  * `UPPERCASE`
-  * `camelCase`
-  * `PascalCase`
-  * `snake_case`
-  * `SCREAMING_CASE`
-by adding a `#[autorule = "xxxx"]` attribute to the enum:
+
+* `lowercase`
+* `UPPERCASE`
+* `camelCase`
+* `PascalCase`
+* `snake_case`
+* `SCREAMING_CASE`
+  by adding a `#[autorule = "xxxx"]` attribute to the enum:
 
 ``` rust
 #[derive(AutoStr)]
@@ -417,4 +418,43 @@ assert_eq!(s31.bar1.foo1, s2.foo1);
 assert_eq!(s31.bar1.foo2, s2.foo2);
 assert_eq!(s31.bar1.foo3, s2.foo3);
 
+```
+
+### BundleText
+
+Bundle text content or command output into static str at compile time and use in runtime.
+
+#### Usage
+
+* Bundle file: #[bundle(name = "get_file", file = "file/path")]
+* Bundle command: #[bundle(name = "get_rustc_version", command = "rustc --version")]
+
+#### Example
+
+```rust
+use std::io::Read;
+use std::process::Stdio;
+use racros::BundleText;
+
+#[derive(BundleText)]
+#[bundle(name = "some_file", file = "data/text")]
+#[bundle(name = "my_rustc_version", command = "rustc --version")]
+enum Bundler{}
+
+    assert_eq!(
+        Bundler::some_file(),
+        r#"Some Text
+To Read"#
+    );
+    let mut stdout = String::new();
+    std::process::Command::new("rustc")
+        .arg("--version")
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap()
+        .stdout
+        .unwrap()
+        .read_to_string(&mut stdout)
+        .expect("failed to run rustc");
+    assert_eq!(Bundler::my_rustc_version(), stdout);
 ```

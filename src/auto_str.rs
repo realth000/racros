@@ -7,7 +7,9 @@ use syn::{
     Meta, MetaList, MetaNameValue,
 };
 
-use crate::util::{compiling_error, to_camel_case, to_pascal_case, to_snake_case, to_screaming_case};
+use crate::util::{
+    compiling_error, to_camel_case, to_pascal_case, to_screaming_case, to_snake_case,
+};
 
 #[derive(Debug)]
 enum Rules {

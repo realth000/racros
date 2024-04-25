@@ -24,6 +24,10 @@
 //!
 //! Add a `copy_with` function for decorated type, copy value from another `Self` if that value is
 //! not `default` value.
+//!
+//! ## [`BundleText`]
+//!
+//! Bundle text content or command output into static str at compile time and use in runtime.
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -385,6 +389,43 @@ pub fn auto_debug(input: TokenStream) -> TokenStream {
     auto_debug::auto_debug_internal(input)
 }
 
+/// Bundle text contents and command outputs into static str and use in runtime.
+///
+/// # Usage
+///
+/// * Bundle file: #[bundle(name = "get_file", file = "file/path")]
+/// * Bundle command: #[bundle(name = "get_rustc_version", command = "rustc --version")]
+///
+/// # Example
+///
+/// ```
+/// use std::io::Read;
+/// use std::process::Stdio;
+/// use racros::BundleText;
+///
+/// #[derive(BundleText)]
+/// #[bundle(name = "some_file", file = "data/text")]
+/// #[bundle(name = "my_rustc_version", command = "rustc --version")]
+/// enum Bundler{}
+///
+///     assert_eq!(
+///         Bundler::some_file(),
+///         r#"Some Text
+/// To Read"#
+///     );
+///     let mut stdout = String::new();
+///     std::process::Command::new("rustc")
+///         .arg("--version")
+///         .stdout(Stdio::piped())
+///         .spawn()
+///         .unwrap()
+///         .stdout
+///         .unwrap()
+///         .read_to_string(&mut stdout)
+///         .expect("failed to run rustc");
+///     assert_eq!(Bundler::my_rustc_version(), stdout);
+/// ```
+///
 #[proc_macro_derive(BundleText, attributes(bundle))]
 pub fn bundle_text(input: TokenStream) -> TokenStream {
     bundle_text::bundle_text_internal(input)
