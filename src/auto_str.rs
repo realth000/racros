@@ -342,6 +342,7 @@ fn generate_to_string(ast: &DeriveInput, rule: &Option<Rules>) -> Result<TokenSt
     }
 
     let expand = quote! {
+        #[allow(clippy::to_string_trait_impl)]
         impl ToString for #target_ident {
             fn to_string(&self) -> String {
                 match self {
