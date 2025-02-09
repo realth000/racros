@@ -8,7 +8,7 @@
 //!
 //! * Specify field name or value in print message.
 //! * Ignore specified field.
-//! * Use [`std::fmt::Display`] instead of [`std::fmt:;Debug`] on specified field.
+//! * Use [`std::fmt::Display`] instead of [`std::fmt::Debug`] on specified field.
 //! * Set print style similar to printing tuple or struct.
 //!
 //! ## [`AutoStr`]
@@ -258,13 +258,15 @@ pub fn copy_with(input: TokenStream) -> TokenStream {
 ///   * `#[debug_name = "foo"]` override field name with "foo", if in struct `debug_style`.
 ///   * `#[debug_value = "foo"]` override field value with "foo".
 ///   * `#[debug_ignore]` will ignore this field in the output.
-///   * `#[debug_debug]` will use [Debug] trait implementation for this field in output.
-///   * `#[debug_display]` will use `Display` trait implementation for this field in output.
+///   * `#[debug_debug]` will use `Debug` `{:#?}` for this field in output.
+///   * `#[debug_display]` will use `Display` `{}` for this field in output.
+///   * `#[debug_debug_not_pretty]` will use `Debug` `{:?}` for this field in output.
 ///
 /// ## Enum Variant Attributes
 ///   * `#[debug_ignore]`
 ///   * `#[debug_debug]`
 ///   * `#[debug_display]`
+///   * `#[debug_debug_not_pretty]`
 ///
 /// # Example
 ///
@@ -346,6 +348,8 @@ pub fn copy_with(input: TokenStream) -> TokenStream {
 ///     Foo2((i32, u32)),
 ///     Foo3(Foo2),
 ///     Foo4 { a: i32, b: u32 },
+///     #[debug_debug_not_pretty]
+///     Foo5(Option<String>),
 /// }
 ///
 /// let foo33 = Foo3::Foo3(Foo2 {
@@ -371,6 +375,14 @@ pub fn copy_with(input: TokenStream) -> TokenStream {
 /// }"#
 /// );
 ///
+/// let foo35 = Foo3::Foo5(Some(String::from("hello world")));
+/// assert_eq!(
+///     format(format_args!("{foo35:#?}")),
+///     r#"Foo5(
+///     Some("hello world"),
+/// )"#,
+/// );
+///
 /// ```
 ///
 #[proc_macro_derive(
@@ -383,6 +395,7 @@ pub fn copy_with(input: TokenStream) -> TokenStream {
         debug_ignore,
         debug_debug,
         debug_display,
+        debug_debug_not_pretty,
     )
 )]
 pub fn auto_debug(input: TokenStream) -> TokenStream {

@@ -39,11 +39,14 @@ struct Foo2 {
 }
 
 #[derive(AutoDebug)]
+#[debug_format = "debug"]
 enum Foo3 {
     Foo1,
     Foo2((i32, u32)),
     Foo3(Foo2),
     Foo4 { a: i32, b: u32 },
+    #[debug_debug_not_pretty]
+    Foo5(Option<String>),
 }
 
 #[derive(AutoDebug)]
@@ -130,6 +133,14 @@ fn main() {
     b: 200,
 }"#
     );
+
+    let foo35 = Foo3::Foo5(Some(String::from("hello world")));
+    assert_eq!(
+        format(format_args!("{foo35:#?}")),
+        r#"Foo5(
+    Some("hello world"),
+)"#,
+);
 
     let my_type = MyType {};
     let foo4 = Foo4::Foo3 { a: my_type, b: 4 };

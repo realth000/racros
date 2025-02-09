@@ -10,7 +10,7 @@ Works on structs and enums, similar to [`std::fmt::Debug`] but support some cust
 
 * Specify field name or value in print message.
 * Ignore specified field.
-* Use [`std::fmt::Display`] instead of [`std::fmt:;Debug`] on specified field.
+* Use [`std::fmt::Display`] instead of [`std::fmt::Debug`] on specified field.
 * Set print style similar to printing tuple or struct.
 
 #### Basic Usage
@@ -27,8 +27,9 @@ Works on structs and enums, similar to [`std::fmt::Debug`] but support some cust
 * `#[debug_name = "foo"]` override field name with "foo", if in struct `debug_style`.
 * `#[debug_value = "foo"]` override field value with "foo".
 * `#[debug_ignore]` will ignore this field in the output.
-* `#[debug_debug]` will use [Debug] trait implementation for this field in output.
-* `#[debug_display]` will use [Display] trait implementation for this field in output.
+* `#[debug_debug]` will use `Debug` `{:#?}` for this field in output.
+* `#[debug_display]` will use `Display` `{}` for this field in output.
+* `#[debug_debug_not_pretty]` will use `Debug` `{:?}` for this field in output.
 
 #### Example
 
@@ -172,7 +173,8 @@ The string format can be set to
 * `PascalCase`
 * `snake_case`
 * `SCREAMING_CASE`
-  by adding a `#[autorule = "xxxx"]` attribute to the enum:
+
+by adding a `#[autorule = "xxxx"]` attribute to the enum:
 
 ``` rust
 #[derive(AutoStr)]

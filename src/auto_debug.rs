@@ -18,7 +18,12 @@ enum DebugStyle {
 enum DebugFormat {
     Debug,
     Display,
+    DebugNotPretty,
 }
+
+const PLACEHOLDER_DEBUG: &str = "{:#?}";
+const PLACEHOLDER_DISPLAY: &str = "{}";
+const PLACEHOLDER_DEBUG_NOT_PRETTY: &str = "{:?}";
 
 pub fn auto_debug_internal(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
@@ -37,9 +42,6 @@ pub fn auto_debug_internal(input: TokenStream) -> TokenStream {
 
 #[allow(clippy::too_many_lines)]
 fn auto_debug_struct(ast: &DeriveInput, data_struct: &DataStruct) -> TokenStream {
-    let debug_placeholder = "{:#?}";
-    let display_placeholder = "{}";
-
     let mut debug_style = DebugStyle::Struct;
     let mut debug_format = DebugFormat::Debug;
 
@@ -154,6 +156,7 @@ fn auto_debug_struct(ast: &DeriveInput, data_struct: &DataStruct) -> TokenStream
                         "debug_ignore" => field_ignore = true,
                         "debug_display" => field_format = Some(DebugFormat::Display),
                         "debug_debug" => field_format = Some(DebugFormat::Debug),
+                        "debug_debug_not_pretty" => field_format = Some(DebugFormat::DebugNotPretty),
                         _ => continue,
                     }
                 }
@@ -167,11 +170,13 @@ fn auto_debug_struct(ast: &DeriveInput, data_struct: &DataStruct) -> TokenStream
                 field_override_name.map_or_else(|| field_ident.to_string(), |v| v);
 
             let mut raw_field_placeholder = match field_format {
-                Some(DebugFormat::Debug) => debug_placeholder,
-                Some(DebugFormat::Display) => display_placeholder,
+                Some(DebugFormat::Debug) => PLACEHOLDER_DEBUG,
+                Some(DebugFormat::Display) => PLACEHOLDER_DISPLAY,
+                Some(DebugFormat::DebugNotPretty) => PLACEHOLDER_DEBUG_NOT_PRETTY,
                 None => match debug_format {
-                    DebugFormat::Debug => debug_placeholder,
-                    DebugFormat::Display => display_placeholder,
+                    DebugFormat::Debug => PLACEHOLDER_DEBUG,
+                    DebugFormat::Display => PLACEHOLDER_DISPLAY,
+                    DebugFormat::DebugNotPretty=> PLACEHOLDER_DEBUG_NOT_PRETTY,
                 },
             }
             .to_string();
@@ -216,9 +221,6 @@ fn auto_debug_struct(ast: &DeriveInput, data_struct: &DataStruct) -> TokenStream
 
 #[allow(clippy::too_many_lines)]
 fn auto_debug_enum(ast: &DeriveInput, data_enum: &DataEnum) -> TokenStream {
-    let debug_placeholder = "{:#?}";
-    let display_placeholder = "{}";
-
     let mut debug_format = DebugFormat::Debug;
 
     let target_ident = &ast.ident;
@@ -279,6 +281,7 @@ fn auto_debug_enum(ast: &DeriveInput, data_enum: &DataEnum) -> TokenStream {
                     "debug_ignore" => variant_ignore = true,
                     "debug_display" => variant_format = Some(DebugFormat::Display),
                     "debug_debug" => variant_format = Some(DebugFormat::Debug),
+                    "debug_debug_not_pretty" => variant_format = Some(DebugFormat::DebugNotPretty),
                     _ => continue,
                 }
             }
@@ -289,11 +292,13 @@ fn auto_debug_enum(ast: &DeriveInput, data_enum: &DataEnum) -> TokenStream {
         }
 
         let variant_placeholder = match variant_format {
-            Some(DebugFormat::Debug) => debug_placeholder,
-            Some(DebugFormat::Display) => display_placeholder,
+            Some(DebugFormat::Debug) => PLACEHOLDER_DEBUG,
+            Some(DebugFormat::Display) => PLACEHOLDER_DISPLAY,
+            Some(DebugFormat::DebugNotPretty) => PLACEHOLDER_DEBUG_NOT_PRETTY,
             None => match debug_format {
-                DebugFormat::Debug => debug_placeholder,
-                DebugFormat::Display => display_placeholder,
+                DebugFormat::Debug => PLACEHOLDER_DEBUG,
+                DebugFormat::Display => PLACEHOLDER_DISPLAY,
+                DebugFormat::DebugNotPretty => PLACEHOLDER_DEBUG_NOT_PRETTY,
             },
         };
 
